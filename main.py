@@ -9,6 +9,9 @@ from langchain_core.chat_history import BaseChatMessageHistory
 from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 
+
+from prompts import ATM_MAINTENANCE_SYSTEM_PROMPT
+
 load_dotenv()
 
 app = FastAPI()
@@ -17,7 +20,7 @@ app = FastAPI()
 llm = ChatGoogleGenerativeAI(
     model="gemini-2.5-flash",
     google_api_key=os.getenv("GEMINI_API_KEY"),
-    temperature=0.7
+    temperature=0.5 
 )
 
 
@@ -28,9 +31,9 @@ def get_session_history(session_id: str) -> BaseChatMessageHistory:
         store[session_id] = ChatMessageHistory()
     return store[session_id]
 
-# Create prompt
+
 prompt = ChatPromptTemplate.from_messages([
-    ("system", "You are a helpful AI assistant."),
+    ("system", ATM_MAINTENANCE_SYSTEM_PROMPT),
     MessagesPlaceholder(variable_name="history"),
     ("human", "{input}")
 ])
@@ -66,7 +69,7 @@ async def assistant(data: Message):
 
 @app.get("/")
 async def root():
-    return {"message": "AI Assistant API is running"}
+    return {"message": "ATM Maintenance Assistant API is running"}
 
 @app.post("/reset")
 async def reset_conversation():
